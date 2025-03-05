@@ -45,4 +45,9 @@ public class MyApiResponse<T> {
     public static <T> MyApiResponse<T> notExpiredTokenYet() {
         return new MyApiResponse(new ApiResponseHeader(FAILED, NOT_EXPIRED_TOKEN_YET), null);
     }
+    
+    public static <T> MyApiResponse<T> customMessage(int code, String message) {
+        return new MyApiResponse(new ApiResponseHeader(code, message), null);
+    }
+
 }
