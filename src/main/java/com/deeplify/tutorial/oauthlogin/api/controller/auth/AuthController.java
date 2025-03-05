@@ -6,7 +6,7 @@ import com.deeplify.tutorial.oauthlogin.api.entity.user.User;
 import com.deeplify.tutorial.oauthlogin.api.entity.user.UserRefreshToken;
 import com.deeplify.tutorial.oauthlogin.api.repository.user.UserRefreshTokenRepository;
 import com.deeplify.tutorial.oauthlogin.api.repository.user.UserRepository;
-import com.deeplify.tutorial.oauthlogin.common.ApiResponse;
+import com.deeplify.tutorial.oauthlogin.common.MyApiResponse;
 import com.deeplify.tutorial.oauthlogin.config.properties.AppProperties;
 import com.deeplify.tutorial.oauthlogin.oauth.entity.ProviderType;
 import com.deeplify.tutorial.oauthlogin.oauth.entity.RoleType;
@@ -17,6 +17,12 @@ import com.deeplify.tutorial.oauthlogin.oauth.token.AuthTokenProvider;
 import com.deeplify.tutorial.oauthlogin.utils.CookieUtil;
 import com.deeplify.tutorial.oauthlogin.utils.HeaderUtil;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -38,6 +44,7 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Auth API")
 public class AuthController {
 
     private final AppProperties appProperties;
@@ -50,9 +57,25 @@ public class AuthController {
     private final static long THREE_DAYS_MSEC = 259200000;
     private final static String REFRESH_TOKEN = "refresh_token";
 	
-	 
     @PostMapping("/signup")
-    public ApiResponse registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    @ApiResponses(value = {
+    	    @ApiResponse(responseCode = "200", description = "성공",
+    	    		content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(value = """
+                            {
+                                "header": {
+                                    "code": 200,
+                                    "message": "SUCCESS"
+                                },
+                                "body": {
+                                    "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                }
+                            }
+                            """
+                    ))),
+    	    @ApiResponse(responseCode = "404", description = "해당 ID의 유저가 존재하지 않습니다."),
+    	})
+    public MyApiResponse registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         // userId 중복 체크
         if (userRepository.existsByUserId(signUpRequest.getUserId())) {
             throw new BadRequestException("이미 사용 중인 아이디입니다.");
@@ -77,13 +100,30 @@ public class AuthController {
         // 사용자 저장
         User result = userRepository.save(user);
 
-        return ApiResponse.success("message", "회원가입이 완료되었습니다.");
+        return MyApiResponse.success("message", "회원가입이 완료되었습니다.");
     }
 
     // ... existing code ...
     
     @PostMapping("/login")
-    public ApiResponse login(
+    @ApiResponses(value = {
+    	    @ApiResponse(responseCode = "200", description = "성공",
+    	    		content = @Content(mediaType = "application/json",
+                    examples = @ExampleObject(value = """
+                            {
+                                "header": {
+                                    "code": 200,
+                                    "message": "SUCCESS"
+                                },
+                                "body": {
+                                    "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                }
+                            }
+                            """
+                    ))),
+    	    @ApiResponse(responseCode = "404", description = "해당 ID의 유저가 존재하지 않습니다."),
+    	})
+    public MyApiResponse login(
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody AuthReqModel authReqModel
@@ -126,22 +166,22 @@ public class AuthController {
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
         CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
-        return ApiResponse.success("token", accessToken.getToken());
+        return MyApiResponse.success("token", accessToken.getToken());
     }
 
     @GetMapping("/refresh")
-    public ApiResponse refreshToken (HttpServletRequest request, HttpServletResponse response) {
+    public MyApiResponse refreshToken (HttpServletRequest request, HttpServletResponse response) {
         // access token 확인
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
         if (!authToken.validate()) {
-            return ApiResponse.invalidAccessToken();
+            return MyApiResponse.invalidAccessToken();
         }
 
         // expired access token 인지 확인
         Claims claims = authToken.getExpiredTokenClaims();
         if (claims == null) {
-            return ApiResponse.notExpiredTokenYet();
+            return MyApiResponse.notExpiredTokenYet();
         }
 
         String userId = claims.getSubject();
@@ -154,13 +194,13 @@ public class AuthController {
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
         if (authRefreshToken.validate()) {
-            return ApiResponse.invalidRefreshToken();
+            return MyApiResponse.invalidRefreshToken();
         }
 
         // userId refresh token 으로 DB 확인
         UserRefreshToken userRefreshToken = userRefreshTokenRepository.findByUserIdAndRefreshToken(userId, refreshToken);
         if (userRefreshToken == null) {
-            return ApiResponse.invalidRefreshToken();
+            return MyApiResponse.invalidRefreshToken();
         }
 
         Date now = new Date();
@@ -190,11 +230,11 @@ public class AuthController {
             CookieUtil.addCookie(response, REFRESH_TOKEN, authRefreshToken.getToken(), cookieMaxAge);
         }
 
-        return ApiResponse.success("token", newAccessToken.getToken());
+        return MyApiResponse.success("token", newAccessToken.getToken());
     }
     
     @PostMapping("/logout")
-    public ApiResponse logout(HttpServletRequest request, HttpServletResponse response) {
+    public MyApiResponse logout(HttpServletRequest request, HttpServletResponse response) {
         // 1. 쿠키에서 Refresh Token 가져오기
         String refreshToken = CookieUtil.getCookie(request, REFRESH_TOKEN)
                 .map(Cookie::getValue)
@@ -211,7 +251,7 @@ public class AuthController {
         // 4. (선택) SecurityContext에서 사용자 정보 제거
         SecurityContextHolder.clearContext();
 
-        return ApiResponse.success("message", "로그아웃이 완료되었습니다.");
+        return MyApiResponse.success("message", "로그아웃이 완료되었습니다.");
     }
     
 }
