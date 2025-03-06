@@ -24,6 +24,7 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
     
+    private String orderUid; 
     // 주문 날짜
     private LocalDateTime orderDate;
     
@@ -32,6 +33,11 @@ public class Order {
     
     // 주문 상태 (PROCESSING, COMPLETED 등)
     private String status;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
     
     // 주문 내 여러 상품(주문 아이템)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)

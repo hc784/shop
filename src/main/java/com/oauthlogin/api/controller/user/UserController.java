@@ -21,7 +21,8 @@ public class UserController {
     public MyApiResponse getUser() {
         org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        User user = userService.getUser(principal.getUsername());
+        User user = userService.getUser(principal.getUsername())
+        		.orElseThrow(() -> new RuntimeException("User not found"));
 
         return MyApiResponse.success("user", user);
     }

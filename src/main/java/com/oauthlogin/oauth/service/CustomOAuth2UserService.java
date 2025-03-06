@@ -44,7 +44,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
 
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
-        User savedUser = userRepository.findByUserId(userInfo.getId());
+        User savedUser = userRepository.findByUserId(userInfo.getId())
+        		.orElseThrow(() -> new RuntimeException("User not found"));
 
         if (savedUser != null) {
             if (providerType != savedUser.getProviderType()) {

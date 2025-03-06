@@ -26,8 +26,8 @@ public class CartService {
     private UserRepository userRepository;
     
     // 현재 사용자의 장바구니 조회 (없으면 생성)
-    public Cart getCartByUsername(String username) {
-        User user = userRepository.findByUsername(username)
+    public Cart getCartByUsername(String userId) {
+        User user = userRepository.findByUserId(userId)
                      .orElseThrow(() -> new RuntimeException("User not found"));
         return cartRepository.findByUser(user)
                 .orElseGet(() -> {

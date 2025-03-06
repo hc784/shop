@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderService {
@@ -29,13 +30,14 @@ public class OrderService {
     private PaymentService paymentService;
     
     // 주문 생성 (장바구니나 직접 주문 요청 시 사용)
-    public Order createOrder(String username, List<OrderItemRequest> orderItemRequests) {
-        User user = userRepository.findByUsername(username)
+    public Order createOrder(String userId, List<OrderItemRequest> orderItemRequests) {
+        User user = userRepository.findByUserId(userId)
                      .orElseThrow(() -> new RuntimeException("User not found"));
         
         Order order = Order.builder()
                         .user(user)
                         .orderDate(LocalDateTime.now())
+                        .orderUid(UUID.randomUUID().toString())
                         .status("PROCESSING")
                         .build();
         
@@ -61,38 +63,38 @@ public class OrderService {
     }
     
     // 현재 사용자의 모든 주문 조회
-    public List<Order> getOrdersByUser(String username) {
-        User user = userRepository.findByUsername(username)
+    public List<Order> getOrdersByUser(String userId) {
+        User user = userRepository.findByUserId(userId)
                      .orElseThrow(() -> new RuntimeException("User not found"));
         return orderRepository.findByUser(user);
     }
     
     // 특정 주문 조회 (현재 사용자 소유 여부 확인)
-    public Order getOrderByIdAndUser(String username, Long orderId) {
-        User user = userRepository.findByUsername(username)
+    public Order getOrderByIdAndUser(String userId, Long orderId) {
+        User user = userRepository.findByUserId(userId)
                      .orElseThrow(() -> new RuntimeException("User not found"));
         Order order = orderRepository.findById(orderId)
                       .orElseThrow(() -> new RuntimeException("Order not found"));
-        if(!order.getUser().getId().equals(user.getId())) {
+        if(!order.getUser().getUserSeq().equals(user.getUserSeq())) {
             throw new RuntimeException("Unauthorized access");
         }
         return order;
     }
     
     // 결제 처리 (포트원 연동)
-    public Order payOrder(String username, Long orderId) {
-        Order order = getOrderByIdAndUser(username, orderId);
-        if (!order.getStatus().equals("PROCESSING")) {
-             throw new RuntimeException("Order cannot be paid");
-        }
-        boolean paymentSuccess = paymentService.processPayment(order);
-        if (paymentSuccess) {
-             order.setStatus("COMPLETED");
-             return orderRepository.save(order);
-        } else {
-             throw new RuntimeException("Payment failed");
-        }
-    }
+//    public Order payOrder(String userId, Long orderId) {
+//        Order order = getOrderByIdAndUser(userId, orderId);
+//        if (!order.getStatus().equals("PROCESSING")) {
+//             throw new RuntimeException("Order cannot be paid");
+//        }
+//        boolean paymentSuccess = paymentService.processPayment(order);
+//        if (paymentSuccess) {
+//             order.setStatus("COMPLETED");
+//             return orderRepository.save(order);
+//        } else {
+//             throw new RuntimeException("Payment failed");
+//        }
+//    }
     
     // 주문 요청 시 전달할 DTO
     public static class OrderItemRequest {
