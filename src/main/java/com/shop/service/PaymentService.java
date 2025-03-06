@@ -3,6 +3,7 @@ package com.shop.service;
 import com.shop.dto.PaymentCallbackRequest;
 import com.shop.dto.RequestPayDto;
 import com.shop.entity.Order;
+import com.shop.entity.OrderItem;
 import com.shop.entity.PaymentStatus;
 import com.shop.repository.OrderRepository;
 import com.shop.repository.PaymentRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @Transactional
@@ -38,7 +40,7 @@ public class PaymentService{
                 .buyerEmail(order.getUser().getEmail())
 				/* .buyerAddress(order.getMember().getAddress()) */
                 .paymentPrice(order.getPayment().getPrice())
-                .orderItems(order.getOrderItems())
+                .itemName(getOrderSummary(order.getOrderItems()))
 				.orderUid(order.getOrderUid()) 
                 .build();
     }
@@ -88,4 +90,24 @@ public class PaymentService{
             throw new RuntimeException(e);
         }
     }
+    public String getOrderSummary(List<OrderItem> orderItems) {
+        if (orderItems == null || orderItems.isEmpty()) {
+            return "주문한 상품이 없습니다.";
+        }
+
+        // 첫 번째 상품의 이름 가져오기
+        String firstProductName = orderItems.get(0).getProduct().getName();
+
+        // 상품 개수 확인 (첫 번째 상품 외 몇 개가 더 있는지)
+        int otherProductCount = orderItems.size() - 1;
+
+        // 상품이 하나만 있으면 그대로 반환
+        if (otherProductCount == 0) {
+            return firstProductName;
+        }
+
+        // 여러 개 있으면 "상품명 외 N개 상품" 형식으로 반환
+        return firstProductName + " 외 " + otherProductCount + "개의 상품";
+    }
+
 }

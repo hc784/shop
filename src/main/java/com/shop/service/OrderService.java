@@ -82,7 +82,7 @@ public class OrderService {
     }
     
     // 결제 처리 (포트원 연동)
-//    public Order payOrder(String userId, Long orderId) {
+    public Order payOrder(String userId, Long orderId) {
 //        Order order = getOrderByIdAndUser(userId, orderId);
 //        if (!order.getStatus().equals("PROCESSING")) {
 //             throw new RuntimeException("Order cannot be paid");
@@ -94,7 +94,8 @@ public class OrderService {
 //        } else {
 //             throw new RuntimeException("Payment failed");
 //        }
-//    }
+    	return null;
+    }
     
     // 주문 요청 시 전달할 DTO
     public static class OrderItemRequest {
