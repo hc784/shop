@@ -17,7 +17,7 @@
             var paymentPrice = [[${requestDto.paymentPrice}]];
             var buyerName = '[[${requestDto.buyerName}]]';
             var buyerEmail = '[[${requestDto.buyerEmail}]]';
-            var buyerAddress = '[[${requestDto.buyerAddress}]]';
+            /* var buyerAddress = '[[${requestDto.buyerAddress}]]'; */
 
             IMP.request_pay({
                     // m_redirect_url: "/payment",
@@ -29,8 +29,8 @@
                     buyer_email : buyerEmail, // 구매자 이메일
                     buyer_name : buyerName, // 구매자 이름
                     buyer_tel : '010-1234-5678', // 임의의 값
-                    buyer_addr : buyerAddress, // 구매자 주소
-                    buyer_postcode : '123-456', // 임의의 값
+                    buyer_addr : 'adress', // 구매자 주소
+                    buyer_postcode : '123-456' // 임의의 값
                 },
                 function(rsp) {
                     if (rsp.success) {

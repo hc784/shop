@@ -31,7 +31,7 @@ public class PaymentService{
     private final IamportClient iamportClient;
 
     public RequestPayDto findRequestDto(String orderUid) {
-
+    	System.out.println(orderUid+"userService@@@@@@@@@@@@@@@@@@@@@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         Order order = orderRepository.findOrderAndPaymentAndMember(orderUid)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다."));
 
@@ -39,7 +39,7 @@ public class PaymentService{
                 .buyerName(order.getUser().getUsername())
                 .buyerEmail(order.getUser().getEmail())
 				/* .buyerAddress(order.getMember().getAddress()) */
-                .paymentPrice(order.getPayment().getPrice())
+                .paymentPrice(order.getTotalPrice())
                 .itemName(getOrderSummary(order.getOrderItems()))
 				.orderUid(order.getOrderUid()) 
                 .build();

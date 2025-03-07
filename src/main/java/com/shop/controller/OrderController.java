@@ -1,8 +1,8 @@
 package com.shop.controller;
 
+import com.shop.dto.OrderItemRequest;
 import com.shop.entity.Order;
 import com.shop.service.OrderService;
-import com.shop.service.OrderService.OrderItemRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

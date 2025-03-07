@@ -29,5 +29,5 @@ public class OrderItem {
     private Integer quantity;
     
     // 주문 당시 상품 단가
-    private Double price;
+    private int price;
 }

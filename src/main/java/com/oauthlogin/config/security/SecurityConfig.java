@@ -49,7 +49,6 @@ public class SecurityConfig {
     private final UserRefreshTokenRepository userRefreshTokenRepository;
     
     private static final String[] AUTH_WHITELIST = {
-    	      "/api/**",
     	      "/swagger-ui/**", "/api-docs", "/swagger-ui-custom.html",
     	      "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/api/v1/auth/login", "/api/v1/auth/signup"
     	  };
@@ -73,7 +72,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers(AUTH_WHITELIST).permitAll()
-                .requestMatchers("/api/**").hasAnyAuthority(RoleType.USER.getCode())
+
+//                .requestMatchers("/**").permitAll()
+                .requestMatchers("/api/**","/payment/**").hasAnyAuthority(RoleType.USER.getCode())
                 .requestMatchers("/api/**/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .anyRequest().authenticated()
             )

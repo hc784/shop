@@ -29,7 +29,7 @@ public class Order {
     private LocalDateTime orderDate;
     
     // 총 가격
-    private Double totalPrice;
+    private int totalPrice;
     
     // 주문 상태 (PROCESSING, COMPLETED 등)
     private String status;

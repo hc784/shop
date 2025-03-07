@@ -1,6 +1,8 @@
 package com.oauthlogin.oauth.handler;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
@@ -15,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class TokenAccessDeniedHandler implements AccessDeniedHandler {
 
-    private final HandlerExceptionResolver handlerExceptionResolver;
+    private final @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {

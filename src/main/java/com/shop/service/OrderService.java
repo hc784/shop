@@ -2,6 +2,7 @@ package com.shop.service;
 
 import com.oauthlogin.api.entity.user.User;
 import com.oauthlogin.api.repository.user.UserRepository;
+import com.shop.dto.OrderItemRequest;
 import com.shop.entity.Order;
 import com.shop.entity.OrderItem;
 import com.shop.entity.Product;
@@ -41,7 +42,7 @@ public class OrderService {
                         .status("PROCESSING")
                         .build();
         
-        double totalPrice = 0.0;
+        int totalPrice = 0;
         List<OrderItem> orderItems = new ArrayList<>();
         
         for(OrderItemRequest req : orderItemRequests) {
@@ -97,22 +98,6 @@ public class OrderService {
     	return null;
     }
     
-    // 주문 요청 시 전달할 DTO
-    public static class OrderItemRequest {
-        private Long productId;
-        private Integer quantity;
-        
-        public Long getProductId() {
-            return productId;
-        }
-        public void setProductId(Long productId) {
-            this.productId = productId;
-        }
-        public Integer getQuantity() {
-            return quantity;
-        }
-        public void setQuantity(Integer quantity) {
-            this.quantity = quantity;
-        }
-    }
+
+    
 }

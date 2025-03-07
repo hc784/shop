@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUser(User user);
     @Query("select o from Order o" +
-            " left join fetch o.payment p" +
-            " left join fetch o.user m" +
+//            " left join fetch o.payment p" +
+//            " left join fetch o.user m" +
             " where o.orderUid = :orderUid")
     Optional<Order> findOrderAndPaymentAndMember(String orderUid);
 

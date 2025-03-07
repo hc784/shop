@@ -23,11 +23,10 @@ public class PaymentController {
     @GetMapping("/payment/{orderUid}")
     public String paymentPage(@PathVariable(name = "orderUid", required = false) String orderUid,
                               Model model) {
-
         RequestPayDto requestDto = paymentService.findRequestDto(orderUid);
         model.addAttribute("requestDto", requestDto);
 
-        return "payment";
+        return "paymentPage";
     }
 
     @ResponseBody
