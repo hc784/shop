@@ -31,7 +31,6 @@ public class PaymentService{
     private final IamportClient iamportClient;
 
     public RequestPayDto findRequestDto(String orderUid) {
-    	System.out.println(orderUid+"userService@@@@@@@@@@@@@@@@@@@@@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         Order order = orderRepository.findOrderAndPaymentAndMember(orderUid)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다."));
 
@@ -65,7 +64,7 @@ public class PaymentService{
             }
 
             // DB에 저장된 결제 금액
-            Long price = order.getPayment().getPrice();
+            int price = order.getTotalPrice();
             // 실 결제 금액
             int iamportPrice = iamportResponse.getResponse().getAmount().intValue();
 

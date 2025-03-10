@@ -5,8 +5,11 @@ import com.oauthlogin.api.repository.user.UserRepository;
 import com.shop.dto.OrderItemRequest;
 import com.shop.entity.Order;
 import com.shop.entity.OrderItem;
+import com.shop.entity.Payment;
+import com.shop.entity.PaymentStatus;
 import com.shop.entity.Product;
 import com.shop.repository.OrderRepository;
+import com.shop.repository.PaymentRepository;
 import com.shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,9 @@ public class OrderService {
     private ProductRepository productRepository;
     
     @Autowired
+    private PaymentRepository paymentRepository;
+    
+    @Autowired
     private UserRepository userRepository;
     
     @Autowired
@@ -34,12 +40,17 @@ public class OrderService {
     public Order createOrder(String userId, List<OrderItemRequest> orderItemRequests) {
         User user = userRepository.findByUserId(userId)
                      .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        Payment payment = Payment.builder()
+                .status(PaymentStatus.READY)
+                .build();
+
+      
         Order order = Order.builder()
                         .user(user)
                         .orderDate(LocalDateTime.now())
                         .orderUid(UUID.randomUUID().toString())
                         .status("PROCESSING")
+                        .payment(payment) 
                         .build();
         
         int totalPrice = 0;
@@ -59,7 +70,9 @@ public class OrderService {
         }
         order.setOrderItems(orderItems);
         order.setTotalPrice(totalPrice);
+        payment.setPrice(totalPrice);
         
+        paymentRepository.save(payment);
         return orderRepository.save(order);
     }
     
